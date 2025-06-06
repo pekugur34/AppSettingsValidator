@@ -60,22 +60,25 @@ try
     // Bind the configuration to your settings class
     var settings = configuration.Get<AppSettings>();
 
-    // Validate the configuration
+    // Validate the configuration - this will throw if validation fails
     validator.Validate(configuration);
 }
 catch (ConfigurationValidationException ex)
 {
+    // Log validation errors and throw to prevent application startup
     foreach (var error in ex.ValidationErrors)
     {
-        Console.WriteLine($"Validation failed: {error.ErrorMessage}");
+        Console.WriteLine($"Configuration validation failed: {error.ErrorMessage}");
         Console.WriteLine($"Key: {error.Key}");
         Console.WriteLine($"Value: {error.Value}");
         Console.WriteLine($"Validation Type: {error.ValidationType}");
     }
+    throw; // Re-throw to prevent application startup with invalid configuration
 }
 catch (Exception ex)
 {
     Console.WriteLine($"Error processing configuration: {ex.Message}");
+    throw; // Re-throw to prevent application startup with invalid configuration
 }
 ```
 
@@ -108,22 +111,25 @@ try
     // Bind the configuration to your settings class
     var settings = configuration.Get<AppSettings>();
 
-    // Validate the configuration
+    // Validate the configuration - this will throw if validation fails
     validator.Validate(configuration);
 }
 catch (ConfigurationValidationException ex)
 {
+    // Log validation errors and throw to prevent application startup
     foreach (var error in ex.ValidationErrors)
     {
-        Console.WriteLine($"Validation failed: {error.ErrorMessage}");
+        Console.WriteLine($"Configuration validation failed: {error.ErrorMessage}");
         Console.WriteLine($"Key: {error.Key}");
         Console.WriteLine($"Value: {error.Value}");
         Console.WriteLine($"Validation Type: {error.ValidationType}");
     }
+    throw; // Re-throw to prevent application startup with invalid configuration
 }
 catch (Exception ex)
 {
     Console.WriteLine($"Error validating configuration: {ex.Message}");
+    throw; // Re-throw to prevent application startup with invalid configuration
 }
 ```
 
@@ -159,6 +165,25 @@ public void ConfigureServices(IServiceCollection services)
     
     // Register your configuration
     services.Configure<AppSettings>(Configuration);
+
+    // Validate configuration during startup
+    try
+    {
+        var validator = services.BuildServiceProvider().GetRequiredService<IConfigurationValidator>();
+        validator.Validate(Configuration);
+    }
+    catch (ConfigurationValidationException ex)
+    {
+        // Log validation errors and throw to prevent application startup
+        foreach (var error in ex.ValidationErrors)
+        {
+            Console.WriteLine($"Configuration validation failed: {error.ErrorMessage}");
+            Console.WriteLine($"Key: {error.Key}");
+            Console.WriteLine($"Value: {error.Value}");
+            Console.WriteLine($"Validation Type: {error.ValidationType}");
+        }
+        throw; // Re-throw to prevent application startup with invalid configuration
+    }
 }
 
 // In your service or controller
@@ -198,12 +223,12 @@ public class MyService
                     error.Key,
                     error.Value);
             }
-            throw;
+            throw; // Re-throw to prevent application startup with invalid configuration
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error validating configuration");
-            throw;
+            throw; // Re-throw to prevent application startup with invalid configuration
         }
     }
 }
