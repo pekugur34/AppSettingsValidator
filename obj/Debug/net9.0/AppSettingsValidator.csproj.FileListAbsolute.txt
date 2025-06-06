@@ -1,0 +1,12 @@
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/bin/Debug/net9.0/AppSettingsValidator.deps.json
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/bin/Debug/net9.0/AppSettingsValidator.dll
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/bin/Debug/net9.0/AppSettingsValidator.pdb
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/AppSettingsValidator.csproj.AssemblyReference.cache
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/AppSettingsValidator.GeneratedMSBuildEditorConfig.editorconfig
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/AppSettingsValidator.AssemblyInfoInputs.cache
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/AppSettingsValidator.AssemblyInfo.cs
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/AppSettingsValidator.csproj.CoreCompileInputs.cache
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/AppSettingsValidator.dll
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/refint/AppSettingsValidator.dll
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/AppSettingsValidator.pdb
+/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/obj/Debug/net9.0/ref/AppSettingsValidator.dll

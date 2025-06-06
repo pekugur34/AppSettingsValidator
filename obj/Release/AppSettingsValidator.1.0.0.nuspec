@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>AppSettingsValidator</id>
+    <version>1.0.0</version>
+    <authors>Your Name</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <description>A .NET library for validating appsettings.json configuration values</description>
+    <tags>configuration validation appsettings json</tags>
+    <repository type="git" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Microsoft.Extensions.Configuration.Abstractions" version="6.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Configuration.Binder" version="6.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/Users/peakovic/Documents/AppSettingsValidator/AppSettingsValidator/bin/Release/net9.0/AppSettingsValidator.dll" target="lib/net9.0/AppSettingsValidator.dll" />
+  </files>
+</package>
