@@ -57,26 +57,20 @@ var configuration = new ConfigurationBuilder()
 
 try
 {
-    // First, bind the configuration to your settings class
-    var settings = new AppSettings();
-    configuration.GetSection("Database").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Admin").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Server").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Feature").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Contact").Bind(settings, options => options.BindNonPublicProperties = true);
+    // Bind the configuration to your settings class
+    var settings = configuration.Get<AppSettings>();
 
-    // Then validate the configuration
-    var result = validator.Validate(configuration);
-
-    if (!result.IsValid)
+    // Validate the configuration
+    validator.Validate(configuration);
+}
+catch (ConfigurationValidationException ex)
+{
+    foreach (var error in ex.ValidationErrors)
     {
-        foreach (var error in result.Errors)
-        {
-            Console.WriteLine($"Validation failed: {error.ErrorMessage}");
-            Console.WriteLine($"Key: {error.Key}");
-            Console.WriteLine($"Value: {error.Value}");
-            Console.WriteLine($"Validation Type: {error.ValidationType}");
-        }
+        Console.WriteLine($"Validation failed: {error.ErrorMessage}");
+        Console.WriteLine($"Key: {error.Key}");
+        Console.WriteLine($"Value: {error.Value}");
+        Console.WriteLine($"Validation Type: {error.ValidationType}");
     }
 }
 catch (Exception ex)
@@ -111,26 +105,20 @@ validator.AddRule(ValidationRuleBuilder.PhoneNumber("Contact:Phone", "US"));
 
 try
 {
-    // First, bind the configuration to your settings class
-    var settings = new AppSettings();
-    configuration.GetSection("Database").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Admin").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Server").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Feature").Bind(settings, options => options.BindNonPublicProperties = true);
-    configuration.GetSection("Contact").Bind(settings, options => options.BindNonPublicProperties = true);
+    // Bind the configuration to your settings class
+    var settings = configuration.Get<AppSettings>();
 
-    // Then validate the configuration
-    var result = validator.Validate(configuration);
-    
-    if (!result.IsValid)
+    // Validate the configuration
+    validator.Validate(configuration);
+}
+catch (ConfigurationValidationException ex)
+{
+    foreach (var error in ex.ValidationErrors)
     {
-        foreach (var error in result.Errors)
-        {
-            Console.WriteLine($"Validation failed: {error.ErrorMessage}");
-            Console.WriteLine($"Key: {error.Key}");
-            Console.WriteLine($"Value: {error.Value}");
-            Console.WriteLine($"Validation Type: {error.ValidationType}");
-        }
+        Console.WriteLine($"Validation failed: {error.ErrorMessage}");
+        Console.WriteLine($"Key: {error.Key}");
+        Console.WriteLine($"Value: {error.Value}");
+        Console.WriteLine($"Validation Type: {error.ValidationType}");
     }
 }
 catch (Exception ex)
@@ -169,15 +157,8 @@ public void ConfigureServices(IServiceCollection services)
 {
     services.AddSingleton<IConfigurationValidator, ConfigurationValidator>();
     
-    // Register your configuration with proper section binding
-    services.Configure<AppSettings>(options =>
-    {
-        Configuration.GetSection("Database").Bind(options);
-        Configuration.GetSection("Admin").Bind(options);
-        Configuration.GetSection("Server").Bind(options);
-        Configuration.GetSection("Feature").Bind(options);
-        Configuration.GetSection("Contact").Bind(options);
-    });
+    // Register your configuration
+    services.Configure<AppSettings>(Configuration);
 }
 
 // In your service or controller
