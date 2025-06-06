@@ -27,6 +27,7 @@ dotnet add package AppSettingsValidator
 ### Using Attributes
 
 ```csharp
+// Define your configuration class with validation attributes
 public class AppSettings
 {
     [Required("Database:ConnectionString")]
@@ -44,6 +45,27 @@ public class AppSettings
 
     [PhoneNumber("Contact:Phone", "US")]
     public string PhoneNumber { get; set; }
+}
+
+// Create a configuration validator
+var validator = new ConfigurationValidator();
+
+// Validate your configuration
+var configuration = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .Build();
+
+var result = validator.Validate(configuration);
+
+if (!result.IsValid)
+{
+    foreach (var error in result.Errors)
+    {
+        Console.WriteLine($"Validation failed: {error.ErrorMessage}");
+        Console.WriteLine($"Key: {error.Key}");
+        Console.WriteLine($"Value: {error.Value}");
+        Console.WriteLine($"Validation Type: {error.ValidationType}");
+    }
 }
 ```
 
@@ -63,6 +85,64 @@ if (!result.IsValid)
     foreach (var error in result.Errors)
     {
         Console.WriteLine(error);
+    }
+}
+```
+
+### Example appsettings.json
+
+```json
+{
+  "Database": {
+    "ConnectionString": "Server=localhost;Database=mydb;User=admin;Password=secret"
+  },
+  "Admin": {
+    "Email": "admin@example.com"
+  },
+  "Server": {
+    "Port": 8080
+  },
+  "Feature": {
+    "Enabled": true
+  },
+  "Contact": {
+    "Phone": "+1-555-123-4567"
+  }
+}
+```
+
+### Dependency Injection Example
+
+```csharp
+// In Startup.cs or Program.cs
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddSingleton<IConfigurationValidator, ConfigurationValidator>();
+    
+    // Register your configuration
+    services.Configure<AppSettings>(Configuration);
+}
+
+// In your service or controller
+public class MyService
+{
+    private readonly IConfigurationValidator _validator;
+    private readonly IConfiguration _configuration;
+
+    public MyService(IConfigurationValidator validator, IConfiguration configuration)
+    {
+        _validator = validator;
+        _configuration = configuration;
+    }
+
+    public void ValidateSettings()
+    {
+        var result = _validator.Validate(_configuration);
+        if (!result.IsValid)
+        {
+            // Handle validation errors
+            throw new ConfigurationValidationException(result.Errors);
+        }
     }
 }
 ```
