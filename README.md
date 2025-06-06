@@ -55,37 +55,87 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-var result = validator.Validate(configuration);
-
-if (!result.IsValid)
+try
 {
-    foreach (var error in result.Errors)
+    // First, bind the configuration to your settings class
+    var settings = new AppSettings();
+    configuration.GetSection("Database").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Admin").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Server").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Feature").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Contact").Bind(settings, options => options.BindNonPublicProperties = true);
+
+    // Then validate the configuration
+    var result = validator.Validate(configuration);
+
+    if (!result.IsValid)
     {
-        Console.WriteLine($"Validation failed: {error.ErrorMessage}");
-        Console.WriteLine($"Key: {error.Key}");
-        Console.WriteLine($"Value: {error.Value}");
-        Console.WriteLine($"Validation Type: {error.ValidationType}");
+        foreach (var error in result.Errors)
+        {
+            Console.WriteLine($"Validation failed: {error.ErrorMessage}");
+            Console.WriteLine($"Key: {error.Key}");
+            Console.WriteLine($"Value: {error.Value}");
+            Console.WriteLine($"Validation Type: {error.ValidationType}");
+        }
     }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error processing configuration: {ex.Message}");
 }
 ```
 
 ### Using Fluent API
 
 ```csharp
+// Define your configuration class
+public class AppSettings
+{
+    public string ConnectionString { get; set; }
+    public string AdminEmail { get; set; }
+    public int Port { get; set; }
+    public bool FeatureEnabled { get; set; }
+    public string PhoneNumber { get; set; }
+}
+
+// Create a configuration validator
 var validator = new ConfigurationValidator();
+
+// Add validation rules with proper section paths
 validator.AddRule(ValidationRuleBuilder.Required("Database:ConnectionString"));
+validator.AddRule(ValidationRuleBuilder.MinLength("Database:ConnectionString", 10));
 validator.AddRule(ValidationRuleBuilder.Email("Admin:Email"));
 validator.AddRule(ValidationRuleBuilder.Range("Server:Port", 1, 65535));
 validator.AddRule(ValidationRuleBuilder.Boolean("Feature:Enabled"));
 validator.AddRule(ValidationRuleBuilder.PhoneNumber("Contact:Phone", "US"));
 
-var result = validator.Validate(configuration);
-if (!result.IsValid)
+try
 {
-    foreach (var error in result.Errors)
+    // First, bind the configuration to your settings class
+    var settings = new AppSettings();
+    configuration.GetSection("Database").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Admin").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Server").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Feature").Bind(settings, options => options.BindNonPublicProperties = true);
+    configuration.GetSection("Contact").Bind(settings, options => options.BindNonPublicProperties = true);
+
+    // Then validate the configuration
+    var result = validator.Validate(configuration);
+    
+    if (!result.IsValid)
     {
-        Console.WriteLine(error);
+        foreach (var error in result.Errors)
+        {
+            Console.WriteLine($"Validation failed: {error.ErrorMessage}");
+            Console.WriteLine($"Key: {error.Key}");
+            Console.WriteLine($"Value: {error.Value}");
+            Console.WriteLine($"Validation Type: {error.ValidationType}");
+        }
     }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error validating configuration: {ex.Message}");
 }
 ```
 
@@ -119,8 +169,15 @@ public void ConfigureServices(IServiceCollection services)
 {
     services.AddSingleton<IConfigurationValidator, ConfigurationValidator>();
     
-    // Register your configuration
-    services.Configure<AppSettings>(Configuration);
+    // Register your configuration with proper section binding
+    services.Configure<AppSettings>(options =>
+    {
+        Configuration.GetSection("Database").Bind(options);
+        Configuration.GetSection("Admin").Bind(options);
+        Configuration.GetSection("Server").Bind(options);
+        Configuration.GetSection("Feature").Bind(options);
+        Configuration.GetSection("Contact").Bind(options);
+    });
 }
 
 // In your service or controller
@@ -128,20 +185,44 @@ public class MyService
 {
     private readonly IConfigurationValidator _validator;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<MyService> _logger;
+    private readonly AppSettings _settings;
 
-    public MyService(IConfigurationValidator validator, IConfiguration configuration)
+    public MyService(
+        IConfigurationValidator validator, 
+        IConfiguration configuration,
+        ILogger<MyService> logger,
+        IOptions<AppSettings> settings)
     {
         _validator = validator;
         _configuration = configuration;
+        _logger = logger;
+        _settings = settings.Value;
     }
 
     public void ValidateSettings()
     {
-        var result = _validator.Validate(_configuration);
-        if (!result.IsValid)
+        try
         {
-            // Handle validation errors
-            throw new ConfigurationValidationException(result.Errors);
+            _validator.Validate(_configuration);
+            _logger.LogInformation("Configuration validation successful");
+        }
+        catch (ConfigurationValidationException ex)
+        {
+            foreach (var error in ex.ValidationErrors)
+            {
+                _logger.LogError(
+                    "Configuration validation failed: {ErrorMessage} for key {Key} with value {Value}",
+                    error.ErrorMessage,
+                    error.Key,
+                    error.Value);
+            }
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating configuration");
+            throw;
         }
     }
 }
